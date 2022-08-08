@@ -1,5 +1,6 @@
 #!/bin/sh
 # ubuntu 20.04
+url=n8n.ddns.net
 
 apt update && apt upgrade -y
 apt install ca-certificates curl gnupg lsb-release -y
@@ -14,8 +15,6 @@ apt update
 apt install caddy -y
 apt remove iptables-persistent ufw -y
 cd ~ && mkdir n8n && cd n8n
-nano docker-compose.yml
-
 echo "version: '2'" > docker-compose.yml
 echo "" >> docker-compose.yml
 echo "services:" >> docker-compose.yml
@@ -26,7 +25,7 @@ echo "    ports:" >> docker-compose.yml
 echo "      - 5678:5678" >> docker-compose.yml
 echo "    environment:" >> docker-compose.yml
 echo "      - GENERIC_TIMEZONE=Europe/Moscow" >> docker-compose.yml
-echo "      - WEBHOOK_URL=https://n8n.ddns.net/" >> docker-compose.yml
+echo "      - WEBHOOK_URL=https://$url/" >> docker-compose.yml
 echo "      - N8N_EMAIL_MODE=smtp" >> docker-compose.yml
 echo "      - N8N_SMTP_HOST=smtp.mail.ru" >> docker-compose.yml
 echo "      - N8N_SMTP_USER=oleniichuk_y" >> docker-compose.yml
@@ -36,9 +35,7 @@ echo "    volumes:" >> docker-compose.yml
 echo "      - ./n8n_data:/home/node/.n8n" >> docker-compose.yml
 /usr/bin/docker compose up --detach
 /usr/bin/docker compose logs
-sudo nano /etc/caddy/Caddyfile
-
-echo "n8nguide.thomasmartens.eu {" > /etc/caddy/Caddyfile
+echo "$url {" > /etc/caddy/Caddyfile
 echo "        reverse_proxy localhost:5678 {" >> /etc/caddy/Caddyfile
 echo "		flush_interval -1" >> /etc/caddy/Caddyfile
 echo "	}" >> /etc/caddy/Caddyfile
