@@ -1,0 +1,155 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "https://www.pochta.ru/tracking?p_p_id=trackingPortlet_WAR_portalportlet&p_p_lifecycle=2&p_p_state=normal&p_p_mode=view&p_p_resource_id=tracking.get-by-barcodes&p_p_cacheability=cacheLevelPage&p_p_col_id=column-1&p_p_col_count=1",
+        "options": {},
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "barcodes",
+              "value": "PAST TRACKING NUMBER HERE"
+            }
+          ]
+        }
+      },
+      "name": "Pochta.ru webhook (unofficial)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        360
+      ],
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "chatId": "",
+        "text": "={{$node[\"Pochta.ru webhook (unofficial)\"].json[\"response\"][0][\"trackingItem\"][\"title\"]}} ожидает вручения на почте",
+        "additionalFields": {}
+      },
+      "name": "TG notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        120,
+        260
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "n8n_autobot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"response\"][0][\"trackingItem\"][\"globalStatus\"]}}",
+              "value2": "ARRIVED"
+            }
+          ]
+        }
+      },
+      "name": "IF arrived",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyHour",
+              "minute": 5
+            }
+          ]
+        }
+      },
+      "name": "check every hour",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        -540,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "command": "n8n update:workflow --id=2 --active=false"
+      },
+      "name": "workbook stop1",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        340,
+        260
+      ]
+    }
+  ],
+  "connections": {
+    "Pochta.ru webhook (unofficial)": {
+      "main": [
+        [
+          {
+            "node": "IF arrived",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TG notification": {
+      "main": [
+        [
+          {
+            "node": "workbook stop1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF arrived": {
+      "main": [
+        [
+          {
+            "node": "TG notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check every hour": {
+      "main": [
+        [
+          {
+            "node": "Pochta.ru webhook (unofficial)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
