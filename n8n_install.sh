@@ -9,7 +9,7 @@ echo "Setting up SMTP mail. Enter the server:"
 read smtp_server
 echo "Enter username (without @* part):"
 read smtp_username
-echo "Enter the mail pass. Don't use symbols:"
+echo "Enter the mail pass. Don't use quotes:"
 read smtp_pass
 echo "Enter the sender name. Example: dev@test.com"
 read smtp_sender
