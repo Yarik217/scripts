@@ -1,6 +1,18 @@
 #!/bin/sh
-# ubuntu 20.04
-url=n8n.ddns.net
+# ubuntu 20.04, ubuntu 22.04 tested
+echo "Enter the URL. Example: dev.test.com"
+read url
+echo "Enter the timezone from https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"
+echo "Example: Europe/Moscow"
+read timezone
+echo "Setting up SMTP mail. Enter the server:"
+read smtp_server
+echo "Enter username (without @* part):"
+read smtp_username
+echo "Enter the mail pass. Don't use symbols:"
+read smtp_pass
+echo "Enter the sender name. Example: dev@test.com"
+read smtp_sender
 
 apt update && apt upgrade -y
 apt install ca-certificates curl gnupg lsb-release -y
@@ -24,13 +36,13 @@ echo "    restart: unless-stopped" >> docker-compose.yml
 echo "    ports:" >> docker-compose.yml
 echo "      - 5678:5678" >> docker-compose.yml
 echo "    environment:" >> docker-compose.yml
-echo "      - GENERIC_TIMEZONE=Europe/Moscow" >> docker-compose.yml
+echo "      - GENERIC_TIMEZONE=$timezone" >> docker-compose.yml
 echo "      - WEBHOOK_URL=https://$url/" >> docker-compose.yml
 echo "      - N8N_EMAIL_MODE=smtp" >> docker-compose.yml
-echo "      - N8N_SMTP_HOST=smtp.mail.ru" >> docker-compose.yml
-echo "      - N8N_SMTP_USER=oleniichuk_y" >> docker-compose.yml
-echo "      - N8N_SMTP_PASS=ASDgp1QSyiYDEAdQ5AQB" >> docker-compose.yml
-echo "      - N8N_SMTP_SENDER=oleniichuk_y@mail.ru" >> docker-compose.yml
+echo "      - N8N_SMTP_HOST=$smtp_server" >> docker-compose.yml
+echo "      - N8N_SMTP_USER=$smtp_username" >> docker-compose.yml
+echo "      - N8N_SMTP_PASS=$smtp_pass" >> docker-compose.yml
+echo "      - N8N_SMTP_SENDER=$smtp_sender" >> docker-compose.yml
 echo "    volumes:" >> docker-compose.yml
 echo "      - ./n8n_data:/home/node/.n8n" >> docker-compose.yml
 /usr/bin/docker compose up --detach
