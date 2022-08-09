@@ -18,13 +18,11 @@ apt update && apt upgrade -y
 apt install ca-certificates curl gnupg lsb-release -y
 mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-apt update
-apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin debian-keyring debian-archive-keyring apt-transport-https -y
 curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
 curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 apt update
-apt install caddy -y
+apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin debian-keyring debian-archive-keyring apt-transport-https caddy -y
 apt remove iptables-persistent ufw -y
 cd ~ && mkdir n8n && cd n8n
 echo "version: '2'" > docker-compose.yml
