@@ -16,16 +16,16 @@ read smtp_sender
 echo "Enter the data DIR. Example: /home/ubuntu/"
 read data_dir
 
-apt update && apt upgrade -y
-apt install ca-certificates curl gnupg lsb-release -y
-mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-apt update
-apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin debian-keyring debian-archive-keyring apt-transport-https caddy -y
-apt remove iptables-persistent ufw -y
+sudo apt update && apt upgrade -y
+sudo apt install ca-certificates curl gnupg lsb-release -y
+sudomkdir -p /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+sudo curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+sudo echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin debian-keyring debian-archive-keyring apt-transport-https caddy -y
+sudo apt remove iptables-persistent ufw iptables -y
 cd ~ && mkdir n8n && cd n8n
 echo "version: '2'" > docker-compose.yml
 echo "" >> docker-compose.yml
@@ -45,14 +45,15 @@ echo "      - N8N_SMTP_PASS=$smtp_pass" >> docker-compose.yml
 echo "      - N8N_SMTP_SENDER=$smtp_sender" >> docker-compose.yml
 echo "    volumes:" >> docker-compose.yml
 echo "      - $data_dir/n8n:/home/node/.n8n" >> docker-compose.yml
-/usr/bin/docker compose up --detach
-/usr/bin/docker compose logs
+sudo /usr/bin/docker compose up --detach
+sudo /usr/bin/docker compose logs
 sudo docker run --name mariadb -v $data_dir/mysql:/var/lib/mysql -e MARIADB_ROOT_PASSWORD=$smtp_pass -d -p 3306:3306 mariadb:latest
-echo "$url {" > /etc/caddy/Caddyfile
-echo "        reverse_proxy localhost:5678 {" >> /etc/caddy/Caddyfile
-echo "		flush_interval -1" >> /etc/caddy/Caddyfile
-echo "	}" >> /etc/caddy/Caddyfile
-echo "}" >> /etc/caddy/Caddyfile
+sudo echo "$url {" > /etc/caddy/Caddyfile
+sudo echo "        reverse_proxy localhost:5678 {" >> /etc/caddy/Caddyfile
+sudo echo "		flush_interval -1" >> /etc/caddy/Caddyfile
+sudo echo "	}" >> /etc/caddy/Caddyfile
+sudo echo "}" >> /etc/caddy/Caddyfile
 
 /usr/bin/caddy validate --config /etc/caddy/Caddyfile
-/usr/bin/systemctl restart caddy
+which systemctl > $systemctl
+sudo $systemctl restart caddy
