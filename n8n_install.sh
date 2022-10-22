@@ -26,7 +26,7 @@ sudo echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/do
 sudo apt update
 sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin debian-keyring debian-archive-keyring apt-transport-https caddy -y
 sudo apt remove iptables-persistent ufw iptables -y
-cd ~ && mkdir n8n && cd n8n
+cd $data_dir && mkdir n8n && cd n8n
 echo "version: '2'" > docker-compose.yml
 echo "" >> docker-compose.yml
 echo "services:" >> docker-compose.yml
@@ -47,6 +47,7 @@ echo "    volumes:" >> docker-compose.yml
 echo "      - $data_dir/n8n:/home/node/.n8n" >> docker-compose.yml
 sudo /usr/bin/docker compose up --detach
 sudo /usr/bin/docker compose logs
+cd $data_dir
 sudo docker run --name mariadb -v $data_dir/mysql:/var/lib/mysql -e MARIADB_ROOT_PASSWORD=$smtp_pass -d -p 3306:3306 mariadb:latest
 sudo echo "$url {" > /etc/caddy/Caddyfile
 sudo echo "        reverse_proxy localhost:5678 {" >> /etc/caddy/Caddyfile
