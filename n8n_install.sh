@@ -10,7 +10,7 @@ read smtp_server
 echo "Enter username (without @* part):"
 read smtp_username
 echo "Enter the mail pass. It will be used also used on MariaDB. Don't use quotes:"
-read smtp_pass
+read pass
 echo "Enter the sender name. Example: dev@test.com"
 read smtp_sender
 echo "Enter the data DIR. Example: /home/ubuntu/"
@@ -18,7 +18,7 @@ read data_dir
 
 sudo apt update && apt upgrade -y
 sudo apt install ca-certificates curl gnupg lsb-release -y
-sudomkdir -p /etc/apt/keyrings
+sudo mkdir -p /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 sudo curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
 sudo curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
@@ -26,7 +26,7 @@ sudo echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/do
 sudo apt update
 sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin debian-keyring debian-archive-keyring apt-transport-https caddy -y
 sudo apt remove iptables-persistent ufw iptables -y
-cd $data_dir && mkdir n8n && cd n8n
+cd $data_dir && mkdir n8n && mkdir mysql && cd n8n
 echo "version: '2'" > docker-compose.yml
 echo "" >> docker-compose.yml
 echo "services:" >> docker-compose.yml
@@ -41,14 +41,13 @@ echo "      - WEBHOOK_URL=https://$url/" >> docker-compose.yml
 echo "      - N8N_EMAIL_MODE=smtp" >> docker-compose.yml
 echo "      - N8N_SMTP_HOST=$smtp_server" >> docker-compose.yml
 echo "      - N8N_SMTP_USER=$smtp_username" >> docker-compose.yml
-echo "      - N8N_SMTP_PASS=$smtp_pass" >> docker-compose.yml
+echo "      - N8N_SMTP_PASS=$pass" >> docker-compose.yml
 echo "      - N8N_SMTP_SENDER=$smtp_sender" >> docker-compose.yml
 echo "    volumes:" >> docker-compose.yml
 echo "      - $data_dir/n8n:/home/node/.n8n" >> docker-compose.yml
 sudo /usr/bin/docker compose up --detach
 sudo /usr/bin/docker compose logs
-cd $data_dir
-sudo docker run --name mariadb -v $data_dir/mysql:/var/lib/mysql -e MARIADB_ROOT_PASSWORD=$smtp_pass -d -p 3306:3306 mariadb:latest
+sudo docker run --name mariadb -v $data_dir/mysql:/var/lib/mysql -e MARIADB_ROOT_PASSWORD=$pass -d -p 3306:3306 mariadb:latest
 sudo echo "$url {" > /etc/caddy/Caddyfile
 sudo echo "        reverse_proxy localhost:5678 {" >> /etc/caddy/Caddyfile
 sudo echo "		flush_interval -1" >> /etc/caddy/Caddyfile
