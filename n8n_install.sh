@@ -25,7 +25,6 @@ sudo curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | 
 sudo echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt update
 sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin debian-keyring debian-archive-keyring apt-transport-https caddy -y
-sudo apt remove iptables-persistent ufw iptables -y
 cd $data_dir && mkdir n8n && mkdir mysql && cd n8n
 echo "version: '2'" > docker-compose.yml
 echo "" >> docker-compose.yml
