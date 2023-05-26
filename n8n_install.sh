@@ -13,10 +13,10 @@ echo "Enter the mail pass. It will be used also used on MariaDB. Don't use quote
 read pass
 echo "Enter the sender name. Example: dev@test.com"
 read smtp_sender
-echo "Enter the data DIR. Example: /home/ubuntu/"
+echo "Enter the existing data DIR. Example: /home/ubuntu/"
 read data_dir
 
-sudo apt update && apt upgrade -y
+sudo apt update
 sudo apt install ca-certificates curl gnupg lsb-release -y
 sudo mkdir -p /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
@@ -25,7 +25,10 @@ sudo curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | 
 sudo echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt update
 sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin debian-keyring debian-archive-keyring apt-transport-https caddy -y
-cd $data_dir && mkdir n8n && mkdir mysql && cd n8n
+mkdir -p $data_dir/n8n
+mkdir -p $data_dir/mysql
+cd $data_dir/n8n/
+touch docker-compose.yml
 echo "version: '2'" > docker-compose.yml
 echo "" >> docker-compose.yml
 echo "services:" >> docker-compose.yml
@@ -47,6 +50,8 @@ echo "      - $data_dir/n8n:/home/node/.n8n" >> docker-compose.yml
 sudo /usr/bin/docker compose up --detach
 sudo /usr/bin/docker compose logs
 sudo docker run --name mariadb -v $data_dir/mysql:/var/lib/mysql -e MARIADB_ROOT_PASSWORD=$pass -d -p 3306:3306 mariadb:latest
+sudo rm -rf /etc/caddy/*
+sudo touch /etc/caddy/Caddyfile
 sudo echo "$url {" > /etc/caddy/Caddyfile
 sudo echo "        reverse_proxy localhost:5678 {" >> /etc/caddy/Caddyfile
 sudo echo "		flush_interval -1" >> /etc/caddy/Caddyfile
@@ -54,5 +59,4 @@ sudo echo "	}" >> /etc/caddy/Caddyfile
 sudo echo "}" >> /etc/caddy/Caddyfile
 
 /usr/bin/caddy validate --config /etc/caddy/Caddyfile
-which systemctl > $systemctl
-sudo $systemctl restart caddy
+sudo systemctl restart caddy
