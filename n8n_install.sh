@@ -52,6 +52,9 @@ sudo /usr/bin/docker compose logs
 sudo docker run --name mariadb -v $data_dir/mysql:/var/lib/mysql -e MARIADB_ROOT_PASSWORD=$pass -d -p 3306:3306 mariadb:latest
 sudo rm -rf /etc/caddy/*
 sudo touch /etc/caddy/Caddyfile
+sudo echo "{" >> /etc/caddy/Caddyfile
+sudo echo "  email smtp_sender$" >> /etc/caddy/Caddyfile
+sudo echo "}" >> /etc/caddy/Caddyfile
 sudo echo "$url {" > /etc/caddy/Caddyfile
 sudo echo "        reverse_proxy localhost:5678 {" >> /etc/caddy/Caddyfile
 sudo echo "		flush_interval -1" >> /etc/caddy/Caddyfile
