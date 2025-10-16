@@ -2,7 +2,7 @@
 curl -O https://github.com/etcd-io/etcd/releases/download/v3.6.5/etcd-v3.6.5-linux-amd64.tar.gz
 tar -xzf etcd-v3.6.5-linux-amd64.tar.gz
 cp etcd-v3.6.5-linux-amd64/etcdctl ./etcdctl
-rm -rf etcd-v3.6.5-linux-amd64.tar.gz etcd-v3.6.5-linux-amd64.tar.gz
+rm -rf etcd-v3.6.5-linux-amd64.tar.gz etcd-v3.6.5-linux-amd64
 for server in `cat servers.txt`
 do
 echo $server >> secrets.txt
